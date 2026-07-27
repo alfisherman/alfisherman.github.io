@@ -1,0 +1,62 @@
+# Уезжает в публичный репозиторий сайта как .github/workflows/keepalive.yml
+# (копирует scripts/deploy-pages.mjs). Правьте только здесь.
+name: Сайт на домене
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Проверить домен
+        id: check
+        run: |
+          code=$(curl -sS -o body.html -w "%{http_code}" "https://oblachko.team/?watchdog=$(date +%s)")
+          echo "ответ: $code"
+          if [ "$code" = "200" ] && ! grep -q "Site not found" body.html; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::сайт отвечает $code — восстанавливаем привязку домена"
+          fi
+
+      - name: Вернуть CNAME в ветку
+        if: steps.check.outputs.ok == 'false'
+        run: |
+          if [ ! -f CNAME ] || [ "$(cat CNAME)" != "oblachko.team" ]; then
+            echo oblachko.team > CNAME
+            git config user.name "oblachko-watchdog"
+            git config user.email "watchdog@users.noreply.github.com"
+            git add CNAME
+            git commit -m "Вернуть привязку домена oblachko.team"
+            git push
+          fi
+
+      - name: Вернуть домен в настройках Pages
+        if: steps.check.outputs.ok == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X PUT "repos/${{ github.repository }}/pages" -f cname=oblachko.team || true
+
+      - name: Дождаться подъёма
+        if: steps.check.outputs.ok == 'false'
+        run: |
+          for _ in $(seq 1 20); do
+            sleep 15
+            code=$(curl -sS -o /dev/null -w "%{http_code}" "https://oblachko.team/?watchdog=$(date +%s)")
+            if [ "$code" = "200" ]; then
+              echo "сайт поднялся"
+              exit 0
+            fi
+          done
+          echo "сайт не поднялся автоматически" >&2
+          exit 1
