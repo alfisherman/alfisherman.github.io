@@ -1,0 +1,5 @@
+:HL["/_next/static/chunks/0toysl8mbuk2q.css","style"]
+:HL["/_next/static/chunks/0wmnt2xvtf6i8.css","style"]
+:HL["/brand/fonts/Theater_Bold_fixed.ttf","font",{"crossOrigin":"anonymous","type":"font/ttf"}]
+:HL["/brand/logo/logo-row-red.svg","image",{"fetchPriority":"high"}]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"p","param":null,"prefetchHints":0,"slots":{"children":{"name":"slug","param":{"type":"d","key":"victoria-plaza","siblings":null},"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}},"staleTime":300,"buildId":"zXP39butHkZW5NYpOpaCC"}
