@@ -2,8 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>https://oblachko.team</loc>
-<lastmod>2026-10-08T21:36:17.414Z</lastmod>
+<lastmod>2026-08-25T22:10:53.985Z</lastmod>
 <changefreq>weekly</changefreq>
 <priority>1</priority>
+</url>
+<url>
+<loc>https://oblachko.team/1000/</loc>
+<lastmod>2026-09-20</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://oblachko.team/1000/rules/</loc>
+<lastmod>2026-09-20</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
 </url>
 </urlset>
