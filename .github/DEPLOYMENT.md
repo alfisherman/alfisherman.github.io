@@ -28,3 +28,5 @@ The guard rejects a stale base, absent or unchanged intent, partner changes outs
 ## Rollback
 
 Create a new branch from current `origin/main`. Restore the desired files from the last known-good commit (`053aff9` for the recovered site), set `scope: site` and the restored homepage hash in release intent, then open and merge a PR. This preserves history and avoids force-pushing. For one bad release, `git revert <release-commit>` on the new branch is also possible; review the resulting diff.
+
+Guard smoke test: this note exists only in the verification PR.
