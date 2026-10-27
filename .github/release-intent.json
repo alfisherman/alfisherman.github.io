@@ -1,5 +1,5 @@
 {
-  "base": "d7b7d131faa021a1c59d097325a700a1eb4a3892",
-  "scope": "partners",
-  "reason": "Restore the 30 printed partner QR destinations from 5c1926213d258b6647b4de8f07537d6435f88823; isolate dependencies below p/ and preserve the current site byte for byte."
+  "base": "ca5519d15904b4f1e6013640f6595efb2b091413",
+  "scope": "infra",
+  "reason": "Document locked manual Netlify production, immutable stable recovery and explicit owner approval; remove obsolete GitHub Pages release instructions."
 }
