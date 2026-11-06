@@ -1,5 +1,5 @@
 {
-  "base": "b3ec39f8e50799096ddf6de673dab9c09448e08e",
+  "base": "48473698cbb707e35846599a0976796942a0b099",
   "scope": "infra",
-  "reason": "Owner explicitly approved one isolated Windows V9 CI workflow and temporary private source snapshot on 2026-11-07. No site content, keys, customer data, real POS operations or paid runners."
+  "reason": "Owner explicitly approved bounded existing watchdog on 2026-11-07: 30s HTTPS timeout, 3m job timeout and aggregate status validation. No app source, secrets, paid resources or customer data."
 }

@@ -11,12 +11,13 @@ permissions:
 jobs:
   watch:
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - name: Проверить домен без изменения production
         run: |
-          code=$(curl -L -sS -o body.html -w "%{http_code}" "https://oblachko.team/?watchdog=$(date +%s)")
+          code=$(curl --connect-timeout 10 --max-time 30 -L -sS -o body.html -w "%{http_code}" "https://oblachko.team/?watchdog=$(date +%s)")
           echo "ответ: $code"
-          if [ "$code" != "200" ] || grep -q "Site not found" body.html; then
+          if [ "$code" != "200" ] || ! grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"' body.html; then
             echo "::error::oblachko.team отвечает $code; проверьте Pages и DNS вручную"
             exit 1
           fi
