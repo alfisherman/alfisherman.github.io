@@ -1,0 +1,52 @@
+name: ОБЛАЧКО — Windows V9 build verification
+on:
+  pull_request:
+    paths: ['.github/workflows/front-v9-check.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: 'false'
+    steps:
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.403'
+      - name: Распаковать временный private source snapshot без ключей и БД
+        shell: pwsh
+        env:
+          SOURCE_B64: ${{ secrets.OBLACHKO_FRONT_BUILD_SOURCE }}
+        run: |
+          if (!$env:SOURCE_B64) { throw 'PRIVATE_SOURCE_SNAPSHOT_REQUIRED' }
+          $zip=Join-Path $env:RUNNER_TEMP 'front-source.zip'
+          [IO.File]::WriteAllBytes($zip,[Convert]::FromBase64String($env:SOURCE_B64))
+          Write-Output ('source_zip_sha256='+ (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant())
+          Expand-Archive $zip -DestinationPath (Join-Path $env:RUNNER_TEMP 'front-source')
+      - name: Компиляция net472 против настоящего stable V9 SDK
+        shell: pwsh
+        run: |
+          $env:NUGET_PACKAGES=Join-Path $env:RUNNER_TEMP 'front-nuget'
+          $src=Join-Path $env:RUNNER_TEMP 'front-source/front_bridge'
+          dotnet build (Join-Path $src 'Oblachko.FrontBridge.csproj') -c Release -p:RestoreLockedMode=true
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $api=Join-Path $env:NUGET_PACKAGES 'resto.front.api.v9/9.5.6059/lib/netstandard2.0/Resto.Front.Api.V9.dll'
+          $sdk=Join-Path $env:RUNNER_TEMP 'front-source/local/engineering/nuget/resto.front.api.v9.9.5.6059/lib/netstandard2.0'
+          New-Item -ItemType Directory -Force $sdk | Out-Null
+          Copy-Item $api $sdk
+          $build=Join-Path $env:RUNNER_TEMP 'front-source/local/engineering/front-build/Oblachko.FrontBridge/bin/Release/net472'
+          dotnet run --project (Join-Path $src 'tests/FrontBridge.Tests.csproj') -c Release -- (Join-Path $build 'Oblachko.FrontBridge.dll')
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          powershell.exe -NoProfile -NonInteractive -File (Join-Path $src 'tests/Verify-Windows.ps1') -BuildDirectory $build -ApiDll $api -Installer (Join-Path $src 'Install-Oblachko.ps1')
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Write-Output ('windows_dll_sha256='+ (Get-FileHash (Join-Path $build 'Oblachko.FrontBridge.dll') -Algorithm SHA256).Hash.ToLowerInvariant())
+      - name: Удалить временный исходный snapshot
+        if: always()
+        shell: pwsh
+        run: |
+          Remove-Item (Join-Path $env:RUNNER_TEMP 'front-source') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:RUNNER_TEMP 'front-source.zip') -Force -ErrorAction SilentlyContinue
