@@ -1,5 +1,5 @@
 {
-  "base": "ca5519d15904b4f1e6013640f6595efb2b091413",
+  "base": "b3ec39f8e50799096ddf6de673dab9c09448e08e",
   "scope": "infra",
-  "reason": "Document locked manual Netlify production, immutable stable recovery and explicit owner approval; remove obsolete GitHub Pages release instructions."
+  "reason": "Owner explicitly approved one isolated Windows V9 CI workflow and temporary private source snapshot on 2026-11-07. No site content, keys, customer data, real POS operations or paid runners."
 }
